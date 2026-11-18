@@ -2,11 +2,6 @@ import Foundation
 
 /// 车辆数据源抽象。这里目前只有「读取车况」，后续可以把
 /// 远程车控（锁车/解锁/空调等）加进来。
-///
-/// 重要：演示项目只提供 Mock 实现（本地模拟数据）。
-/// 接入真实车辆数据时，请使用你**合法获得**的接口——
-/// 例如官方开放 API、OBD 盒子或你自己的车联网服务，
-/// 然后写一个实现本协议的类替换掉 Mock 即可，UI 不用改。
 protocol VehicleService: AnyObject {
     func refresh() async throws -> VehicleStatusSnapshot
 }
@@ -32,6 +27,29 @@ final class MockVehicleService: VehicleService {
         next.locked = Bool.random()
         next.address = sampleAddresses.randomElement() ?? "未知位置"
         next.updatedAt = Date()
+
+        // 模拟真实字段，让完整界面在演示模式下也能预览
+        next.batteryPackPrc = next.batteryPercent
+        next.batteryPackRange = next.rangeKm
+        next.drivingRange = next.rangeKm
+        next.odometer = Int.random(in: 8000...12000)
+        next.interiorTemperature = Double(Int.random(in: 18...28))
+        next.exteriorTemperature = Int.random(in: 5...30)
+        next.vehicleBatteryVoltage = Int.random(in: 11...14)
+        next.frontLeftTyrePressure = Int.random(in: 225...255)
+        next.frontRightTyrePressure = Int.random(in: 225...255)
+        next.rearLeftTyrePressure = Int.random(in: 225...255)
+        next.rearRightTyrePressure = Int.random(in: 225...255)
+        next.anyDoorOpen = Bool.random()
+        next.bootOpen = Bool.random()
+        next.windowOpen = Bool.random()
+        next.sunroofOpen = false
+        next.climateOn = Bool.random()
+        next.charging = Bool.random()
+        next.lightOn = false
+        next.engineOn = false
+        next.dataSource = "演示数据"
+
         last = next
         return next
     }

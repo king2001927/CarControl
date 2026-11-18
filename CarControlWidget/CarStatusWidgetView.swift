@@ -57,6 +57,11 @@ struct CarStatusWidgetView: View {
                 Text("续航 \(snapshot.rangeKm) km")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
+                if snapshot.hasTyrePressures {
+                    Text("胎压 " + snapshot.tyrePressures.map(String.init).joined(separator: "/") + " kPa")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
                 Text("更新 \(snapshot.updatedAt.formatted(date: .omitted, time: .shortened))")
                     .font(.caption2)
                     .foregroundColor(.secondary)
