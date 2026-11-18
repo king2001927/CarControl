@@ -213,7 +213,7 @@ struct HomeView: View {
                 Spacer()
                 Text("数据来源：\(snapshot.dataSource ?? "—")")
                     .font(.caption2)
-                    .foregroundColor(.tertiaryLabel)
+                    .foregroundColor(Color(.tertiaryLabel))
             }
         }
         .cardStyle()
