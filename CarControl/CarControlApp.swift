@@ -2,6 +2,7 @@ import SwiftUI
 
 @main
 struct CarControlApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var auth = AuthManager()
     @StateObject private var settings = AppSettings()
 

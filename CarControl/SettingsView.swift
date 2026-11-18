@@ -13,11 +13,15 @@ struct SettingsView: View {
     @State private var cloudToken = ""
     @State private var savedNotice: String?
 
+    @AppStorage("liveActivity.enabled") private var liveActivityEnabled = false
+    @AppStorage("backgroundRefresh.enabled") private var backgroundRefreshEnabled = false
+
     var body: some View {
         NavigationStack {
             Form {
                 vehicleSection
                 dataSourceSection
+                systemDisplaySection
                 appearanceSection
                 accountSection
                 aboutSection
@@ -25,6 +29,17 @@ struct SettingsView: View {
             .navigationTitle("设置")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear(perform: loadVehicleConfig)
+            .onChange(of: liveActivityEnabled) { _ in
+                if #available(iOS 16.2, *) {
+                    LiveActivityManager.update(
+                        with: SharedStore.load() ?? VehicleStatusSnapshot(),
+                        enabled: liveActivityEnabled
+                    )
+                }
+            }
+            .onChange(of: backgroundRefreshEnabled) { _ in
+                BackgroundRefreshManager.shared.schedule()
+            }
         }
     }
 
@@ -72,6 +87,17 @@ struct SettingsView: View {
         }
     }
 
+    private var systemDisplaySection: some View {
+        Section {
+            Toggle("灵动岛实时活动", isOn: $liveActivityEnabled)
+            Toggle("后台自动刷新", isOn: $backgroundRefreshEnabled)
+        } header: {
+            Text("系统展示")
+        } footer: {
+            Text("实时活动在灵动岛与锁屏展示电量、续航和门锁状态（需 iOS 16.2+）。后台刷新由 iOS 调度，实际执行时机不保证；配合「上汽云端」数据源使用才有意义。")
+        }
+    }
+
     private var appearanceSection: some View {
         Section("外观") {
             Picker("外观", selection: $settings.appearance) {
@@ -93,7 +119,7 @@ struct SettingsView: View {
 
     private var aboutSection: some View {
         Section("关于") {
-            LabeledContent("版本", value: "0.2.0")
+            LabeledContent("版本", value: "0.3.0")
             Text("车辆状态接口与字段结构参考 MG Linker（Apache-2.0，见 NOTICE.md）。演示模式下为本地模拟数据。")
                 .font(.footnote)
                 .foregroundColor(.secondary)

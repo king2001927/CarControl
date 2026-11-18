@@ -230,6 +230,12 @@ struct HomeView: View {
             fresh.carName = carName
             snapshot = fresh
             SharedStore.save(fresh)
+            if #available(iOS 16.2, *) {
+                LiveActivityManager.update(
+                    with: fresh,
+                    enabled: UserDefaults.standard.bool(forKey: "liveActivity.enabled")
+                )
+            }
         } catch {
             errorText = error.localizedDescription
         }
