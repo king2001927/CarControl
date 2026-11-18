@@ -1,0 +1,13 @@
+# Xcode / 构建产物
+build/
+DerivedData/
+*.xcarchive
+*.ipa
+*.xcodeproj
+
+# macOS
+.DS_Store
+xcuserdata/
+
+# Node（后端模板）
+node_modules/

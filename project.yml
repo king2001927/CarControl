@@ -1,0 +1,92 @@
+# XcodeGen 项目描述：一条命令生成 CarControl.xcodeproj
+# 本地：brew install xcodegen && xcodegen generate
+# CI（GitHub Actions）：由 workflow 自动执行
+name: CarControl
+
+options:
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+
+targets:
+  # ============ 主 App ============
+  CarControl:
+    type: application
+    platform: iOS
+    sources:
+      - path: CarControl
+        excludes:
+          - "CarControl.entitlements"
+          - "Info.plist"
+    info:
+      path: CarControl/Info.plist
+      properties:
+        CFBundleDisplayName: CarControl
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        LSRequiresIPhoneOS: true
+        UILaunchScreen: {}
+        UIUserInterfaceStyle: Automatic
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UIRequiredDeviceCapabilities:
+          - arm64
+        ITSAppUsesNonExemptEncryption: false
+        CFBundleURLTypes:
+          - CFBundleTypeRole: Editor
+            CFBundleURLSchemes:
+              - carcontrol
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.carcontrol
+        CODE_SIGN_ENTITLEMENTS: CarControl/CarControl.entitlements
+        TARGETED_DEVICE_FAMILY: "1"
+    dependencies:
+      - target: CarControlWidget
+        embed: true
+
+  # ============ 桌面小组件扩展 ============
+  CarControlWidget:
+    type: extensionkit-extension
+    platform: iOS
+    sources:
+      - path: CarControlWidget
+        excludes:
+          - "CarControlWidget.entitlements"
+          - "Info.plist"
+      # 与主 App 共享的文件（App Group 数据模型与常量）
+      - path: CarControl/AppConstants.swift
+      - path: CarControl/Models.swift
+      - path: CarControl/SharedStore.swift
+      - path: CarControl/Theme.swift
+    info:
+      path: CarControlWidget/Info.plist
+      properties:
+        CFBundleDisplayName: CarControl 车况
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.carcontrol.widget
+        CODE_SIGN_ENTITLEMENTS: CarControlWidget/CarControlWidget.entitlements
+        TARGETED_DEVICE_FAMILY: "1"
+        APPLICATION_EXTENSION_API_ONLY: YES
+        SKIP_INSTALL: YES
+
+schemes:
+  CarControl:
+    build:
+      targets:
+        CarControl: all
+    run:
+      config: Debug
+    archive:
+      config: Release
