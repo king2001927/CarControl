@@ -15,8 +15,8 @@ final class AuthManager: ObservableObject {
     private let provider: any AuthProvider
     private let sessionKey = "auth.session"
 
-    init(provider: any AuthProvider = AuthManager.defaultProvider()) {
-        self.provider = provider
+    init(provider: (any AuthProvider)? = nil) {
+        self.provider = provider ?? Self.defaultProvider()
         restore()
     }
 
