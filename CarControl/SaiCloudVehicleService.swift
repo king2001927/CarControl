@@ -8,6 +8,7 @@ enum VehicleError: LocalizedError {
     case vinFormat
     case http(Int)
     case invalidResponse
+    case server(String)
     case geocodeFailed
 
     var errorDescription: String? {
@@ -22,6 +23,8 @@ enum VehicleError: LocalizedError {
             return "云端接口返回错误（HTTP \(code)），令牌可能已过期"
         case .invalidResponse:
             return "云端返回数据不完整"
+        case .server(let message):
+            return "云端错误：\(message)"
         case .geocodeFailed:
             return "位置解析失败"
         }
@@ -35,6 +38,17 @@ enum VehicleError: LocalizedError {
 struct SaiStatusResponse: Decodable {
     let reqId: String?
     let data: SaiVehicleData?
+}
+
+/// 服务端错误信封（如 14101 登录态失效时返回）
+struct SaiErrorEnvelope: Decodable {
+    let errResp: SaiErrResp?
+}
+
+struct SaiErrResp: Decodable {
+    let code: String?
+    let msg: String?
+    let desc: String?
 }
 
 struct SaiVehicleData: Decodable {
@@ -128,7 +142,16 @@ final class SaiCloudVehicleService: VehicleService {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         let payload = try decoder.decode(SaiStatusResponse.self, from: data)
-        guard let vehicle = payload.data else { throw VehicleError.invalidResponse }
+        guard let vehicle = payload.data else {
+            // 无车况数据：大概率是服务端业务错误（如 14101 登录态失效），透传真实原因
+            if let envelope = try? decoder.decode(SaiErrorEnvelope.self, from: data),
+               let err = envelope.errResp {
+                let message = err.msg ?? err.desc ?? "未知错误"
+                let code = err.code ?? ""
+                throw VehicleError.server("\(message)（\(code)）")
+            }
+            throw VehicleError.invalidResponse
+        }
 
         let value = vehicle.vehicleValue
         let state = vehicle.vehicleState

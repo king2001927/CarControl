@@ -119,7 +119,7 @@ struct SettingsView: View {
 
     private var aboutSection: some View {
         Section("关于") {
-            LabeledContent("版本", value: "0.3.0")
+            LabeledContent("版本", value: "0.3.1")
             Text("车辆状态接口与字段结构参考 MG Linker（Apache-2.0，见 NOTICE.md）。演示模式下为本地模拟数据。")
                 .font(.footnote)
                 .foregroundColor(.secondary)
