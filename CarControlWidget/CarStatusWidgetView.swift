@@ -25,6 +25,8 @@ struct CarStatusWidgetView: View {
         switch family {
         case .systemSmall:
             smallView(snapshot)
+        case .systemLarge:
+            largeView(snapshot)
         default:
             mediumView(snapshot)
         }
@@ -69,6 +71,79 @@ struct CarStatusWidgetView: View {
             Spacer()
         }
         .padding(16)
+    }
+
+    /// 大号：车名 + 电量环 + 四关键指标 + 四轮胎压 + 位置
+    private func largeView(_ snapshot: VehicleStatusSnapshot) -> some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(snapshot.carName)
+                        .font(.headline)
+                        .lineLimit(1)
+                    Text("更新 \(snapshot.updatedAt.formatted(date: .omitted, time: .shortened))")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+                batteryRing(snapshot.batteryPercent, size: 54)
+            }
+
+            HStack(spacing: 10) {
+                metricTile("续航", "\(snapshot.rangeKm) km")
+                metricTile("门锁", snapshot.locked ? "已锁" : "未锁")
+                metricTile("车内", snapshot.interiorTemperature.map { String(format: "%.0f°", $0) } ?? "—")
+                metricTile("里程", snapshot.odometer.map { "\($0) km" } ?? "—")
+            }
+
+            if snapshot.hasTyrePressures {
+                HStack(spacing: 8) {
+                    tyreTile("左前", snapshot.frontLeftTyrePressure)
+                    tyreTile("右前", snapshot.frontRightTyrePressure)
+                    tyreTile("左后", snapshot.rearLeftTyrePressure)
+                    tyreTile("右后", snapshot.rearRightTyrePressure)
+                }
+            }
+
+            if !snapshot.address.isEmpty {
+                Label(snapshot.address, systemImage: "mappin.circle.fill")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+            }
+        }
+        .padding(16)
+    }
+
+    private func metricTile(_ title: String, _ value: String) -> some View {
+        VStack(spacing: 3) {
+            Text(title)
+                .font(.caption2)
+                .foregroundColor(.secondary)
+            Text(value)
+                .font(.subheadline.bold())
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .background(Color(.tertiarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func tyreTile(_ label: String, _ value: Int?) -> some View {
+        VStack(spacing: 3) {
+            Text(label)
+                .font(.caption2)
+                .foregroundColor(.secondary)
+            Text(value.map(String.init) ?? "—")
+                .font(.subheadline.bold())
+                .foregroundColor(value.map { tyreColor($0) } ?? .secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .background(Color(.tertiarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
     /// 电量圆环

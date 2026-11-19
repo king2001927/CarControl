@@ -243,13 +243,6 @@ struct HomeView: View {
     }
 }
 
-/// 胎压颜色：过低/过高警示
-private func tyreColor(_ kPa: Int) -> Color {
-    if kPa < 200 || kPa > 290 { return .batteryLow }
-    if kPa < 220 || kPa > 270 { return .orange }
-    return .primary
-}
-
 /// 卡片通用样式
 struct CardModifier: ViewModifier {
     func body(content: Content) -> some View {

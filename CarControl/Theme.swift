@@ -14,3 +14,10 @@ func batteryColor(_ percent: Int) -> Color {
     if percent < 50 { return .orange }
     return .brand
 }
+
+/// 胎压颜色：过低/过高警示（App 与小组件共用）
+func tyreColor(_ kPa: Int) -> Color {
+    if kPa < 200 || kPa > 290 { return .batteryLow }
+    if kPa < 220 || kPa > 270 { return .orange }
+    return .primary
+}

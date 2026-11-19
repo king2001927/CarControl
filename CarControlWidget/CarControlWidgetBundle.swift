@@ -19,6 +19,6 @@ struct CarStatusWidget: Widget {
         }
         .configurationDisplayName("车况")
         .description("随时查看电量、续航和门锁状态，点击回到 App。")
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }
